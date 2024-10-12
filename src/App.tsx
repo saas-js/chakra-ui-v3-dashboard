@@ -12,7 +12,6 @@ import {
   Text,
 } from "@chakra-ui/react"
 import {
-  RiAddCircleFill,
   RiDraftLine,
   RiEditBoxLine,
   RiEyeLine,
@@ -169,45 +168,51 @@ function App() {
           </Stack>
         </Box>
       </Stack>
-      <Stack flexDirection="row" bg="bg.panel" flex="1" boxShadow="sm" gap="0">
-        <Stack width="300px" borderRightWidth="1px">
-          <Stack
-            flexDirection="row"
-            height="12"
-            px="4"
-            alignItems="center"
-            justifyContent="space-between"
-          >
+      <Stack flexDirection="row" bg="bg.panel" flex="1" boxShadow="sm" gap="0" overflow="hidden">
+        <Stack
+          width="300px"
+          borderRightWidth="1px"
+          gap="0"
+          overflow="auto"
+          onScroll={(e) => {
+            console.log(e.currentTarget.scrollTop)
+            if (e.currentTarget.scrollTop > 0) {
+              e.currentTarget.dataset.scrolling = "true"
+            } else {
+              delete e.currentTarget.dataset.scrolling
+            }
+          }}
+        >
+          <PanelHeader>
             <Heading size="sm" fontWeight="medium">
               Inbox
             </Heading>
             <IconButton size="sm" variant="ghost" aria-label="Filter" borderRadius="full">
-              <Icon asChild>
-                <RiFilter3Line />
-              </Icon>
+              <Icon as={RiFilter3Line} />
             </IconButton>
-          </Stack>
-          <Box flex="1" overflow="auto" px="2">
+          </PanelHeader>
+          <Box flex="1" px="2" py="2">
             {inboxItems.map((item) => (
               <InboxItem key={item.name} {...item} />
             ))}
           </Box>
         </Stack>
 
-        <Stack flex="1">
-          <Stack
-            flexDirection="row"
-            px="4"
-            height="12"
-            alignItems="center"
-            borderBottomWidth="1px"
-            bg="bg.muted"
-          >
+        <Stack
+          flex="1"
+          overflow="auto"
+          onScroll={(e) => {
+            if (e.currentTarget.scrollTop > 0) {
+              e.currentTarget.dataset.scrolling = "true"
+            } else {
+              delete e.currentTarget.dataset.scrolling
+            }
+          }}
+        >
+          <PanelHeader>
             <Tooltip content="Refresh" openDelay={0}>
               <IconButton aria-label="Refresh" size="sm" variant="ghost">
-                <Icon asChild>
-                  <RiPulseLine />
-                </Icon>
+                <Icon as={RiPulseLine} />
               </IconButton>
             </Tooltip>
             <Spacer />
@@ -223,8 +228,8 @@ function App() {
               </IconButton>
             </Tooltip>
             <SearchInput />
-          </Stack>
-          <Box flex="1" overflow="auto" px="4" py="2">
+          </PanelHeader>
+          <Box flex="1" px="4" py="2">
             <HStack gap="4" borderBottomWidth="1px" pb="4">
               <Avatar size="lg" name={inboxItems[0].name} />
 
@@ -255,7 +260,7 @@ function App() {
 function UserMenu() {
   return (
     <MenuRoot>
-      <MenuTrigger>
+      <MenuTrigger asChild>
         <IconButton variant="ghost" size="sm" px="0" borderRadius="full" aria-label="User menu">
           <Avatar size="sm" name="John Doe" />
         </IconButton>
@@ -282,7 +287,7 @@ function NavLink(props: ButtonProps & { icon: React.ReactNode; active?: boolean 
       _active={{ bg: "bg.emphasized" }}
       data-active={props.active ? "true" : undefined}
     >
-      <Icon asChild color="blue.500" boxSize="4">
+      <Icon color="blue.500" boxSize="4">
         {props.icon}
       </Icon>
       {props.children}
@@ -333,6 +338,41 @@ function InboxItem(
         {props.body}
       </Text>
     </Button>
+  )
+}
+
+function PanelHeader(props: { children: React.ReactNode }) {
+  return (
+    <Stack
+      position="sticky"
+      top="0"
+      zIndex="sticky"
+      flexDirection="row"
+      flexShrink="0"
+      height="12"
+      px="4"
+      alignItems="center"
+      justifyContent="space-between"
+      borderBottomWidth="1px"
+      borderColor="transparent"
+      transition="all 0.2s ease-in-out"
+      backdropFilter="blur(10px)"
+      /* @ts-expect-error custom condition types dont seem to work yet */
+      _scrolling={{
+        borderBottomWidth: "1px",
+        borderColor: "border.emphasized/80",
+        bg: "bg.muted/90",
+        boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.08)",
+      }}
+      _hover={{
+        borderBottomWidth: "1px",
+        borderColor: "border.emphasized/80",
+        bg: "bg.muted/90",
+        boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.08)",
+      }}
+    >
+      {props.children}
+    </Stack>
   )
 }
 
